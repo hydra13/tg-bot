@@ -10,6 +10,8 @@ const { BOT_TOKEN = '' } = process.env;
 const { USER_ID = DEF_USER_ID } = process.env;
 const URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+console.log(BOT_TOKEN.length > 0 ? 'token found' : `token didn't find`);
+
 let offset = 0;
 
 export const checkConnection = async (): Promise<boolean> => {
