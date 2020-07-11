@@ -5,6 +5,7 @@
   "main": "out/index.js",
   "scripts": {
     "build": "tsc -b .",
+    "start": "out/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
