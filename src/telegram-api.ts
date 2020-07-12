@@ -14,6 +14,7 @@ const URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 console.log(BOT_TOKEN.length > 0 ? 'token found' : `token didn't find`);
 
 let offset = 0;
+let pomodoro = 0;
 
 export const checkConnection = async (): Promise<boolean> => {
     try {
@@ -49,7 +50,6 @@ export const getUpdate = async () => {
         const limit = 100;
         const timeout = 0;
         const allowed_updates: string | string[] = [];
-        let pomodoro = 0;
         const res = await axios.post(`${URL}/getUpdates`, {
             offset, limit, timeout, allowed_updates
         })
