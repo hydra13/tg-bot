@@ -68,7 +68,7 @@ export const getUpdate = async () => {
                         /get_pomodoro
                         /reset_pomodoro
                         `
-                        sendMsg(message.chat.id, '', message.message_id);
+                        sendMsg(message.chat.id, msg, message.message_id);
                         break;
                     case '/add_pomodoro':
                         pomodoro++;
