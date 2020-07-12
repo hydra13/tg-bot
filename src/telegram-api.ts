@@ -5,6 +5,7 @@ import {
     TGMessage
 } from './types';
 import { DEF_USER_ID } from './constants';
+import { writeFile } from 'fs';
 
 const { BOT_TOKEN = '' } = process.env;
 const { USER_ID = DEF_USER_ID } = process.env;
@@ -48,6 +49,7 @@ export const getUpdate = async () => {
         const limit = 100;
         const timeout = 0;
         const allowed_updates: string | string[] = [];
+        let pomodoro = 0;
         const res = await axios.post(`${URL}/getUpdates`, {
             offset, limit, timeout, allowed_updates
         })
@@ -60,7 +62,27 @@ export const getUpdate = async () => {
                         sendMsg(message.chat.id, 'Добро пожаловать!', message.message_id);
                         break;
                     case '/help':
-                        sendMsg(message.chat.id, 'Кто бы мне помог :-)', message.message_id);
+                        const msg = `
+                        Кто бы мне помог :-):
+                        /add_pomodoro
+                        /get_pomodoro
+                        /reset_pomodoro
+                        `
+                        sendMsg(message.chat.id, '', message.message_id);
+                        break;
+                    case '/add_pomodoro':
+                        pomodoro++;
+                        sendMsg(message.chat.id, `Помидорка добавлена. Итого: ${pomodoro}`, message.message_id);
+                        const dateObj = new Date();
+                        const dateToday = `${dateObj.getDate()}.${dateObj.getMonth() + 1}.${dateObj.getFullYear()}`;
+                        writeFile(`storage_${dateToday}.txt`, `${pomodoro}`, console.log);
+                        break;
+                    case '/get_pomodoro':
+                        sendMsg(message.chat.id, `Итого помидорок: ${pomodoro}`, message.message_id);
+                        break;
+                    case '/reset_pomodoro':
+                        pomodoro = 0;
+                        sendMsg(message.chat.id, `Помидороки сброшены`, message.message_id);
                         break;
                     default:
                         sendMsg(message.chat.id, 'Неизвестная команда', message.message_id);
