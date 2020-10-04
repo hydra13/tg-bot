@@ -9,7 +9,7 @@ const main = async () => {
     setTimeout(getUpdate, CYCLE_DELAY_MS);
     console.log('Working...')
 
-    createServer();
+    //    createServer();
 }
 
 main();

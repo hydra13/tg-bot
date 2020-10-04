@@ -4,14 +4,12 @@ import {
     TGUpdateMsg,
     TGMessage
 } from './types';
-import { DEF_USER_ID } from './constants';
+import { DEF_USER_ID, LIMIT, TIMEOUT } from './constants';
 import { writeFile } from 'fs';
 
 const { BOT_TOKEN = '' } = process.env;
 const { USER_ID = DEF_USER_ID } = process.env;
 const URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
-
-console.log(BOT_TOKEN.length > 0 ? 'token found' : `token didn't find`);
 
 let offset = 0;
 let pomodoro = 0;
@@ -45,15 +43,18 @@ const sendMsg = async (chatId: number | string, text: string, msgId?: number) =>
     }
 }
 
+const getUpdatesFromTG = async (): Promise<TGUpdateMsg[]> => {
+    const allowed_updates: string | string[] = [];
+    const res = await axios.post(`${URL}/getUpdates`, {
+        offset, LIMIT, TIMEOUT, allowed_updates
+    })
+
+    return res.data.result;
+}
+
 export const getUpdate = async () => {
     try {
-        const limit = 100;
-        const timeout = 0;
-        const allowed_updates: string | string[] = [];
-        const res = await axios.post(`${URL}/getUpdates`, {
-            offset, limit, timeout, allowed_updates
-        })
-        const messages: TGUpdateMsg[] = res.data.result;
+        const messages: TGUpdateMsg[] = await getUpdatesFromTG();
         messages.forEach(msg => {
             const { message, update_id } = msg;
             if (authCheck(message)) {
@@ -83,6 +84,9 @@ export const getUpdate = async () => {
                     case '/reset_pomodoro':
                         pomodoro = 0;
                         sendMsg(message.chat.id, `Помидороки сброшены`, message.message_id);
+                        break;
+                    case '/ping':
+                        sendMsg(message.chat.id, 'PONG', message.message_id);
                         break;
                     default:
                         sendMsg(message.chat.id, 'Неизвестная команда', message.message_id);
