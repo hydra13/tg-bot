@@ -24,3 +24,7 @@ export interface TGUpdateMsg {
     message: TGMessage
     update_id: number
 }
+
+export type CommandsMapper = {
+    [propName: string]: Function
+}
