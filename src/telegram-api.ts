@@ -5,14 +5,14 @@ import {
     TGMessage
 } from './types';
 import { DEF_USER_ID, LIMIT, TIMEOUT } from './constants';
-import { writeFile } from 'fs';
 
 const { BOT_TOKEN = '' } = process.env;
 const { USER_ID = DEF_USER_ID } = process.env;
 const URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+import commands from "./commands";
+
 let offset = 0;
-let pomodoro = 0;
 
 export const checkConnection = async (): Promise<boolean> => {
     try {
@@ -29,7 +29,7 @@ const authCheck = (msg: TGMessage): boolean => {
     return msg.from.id === USER_ID;
 }
 
-const sendMsg = async (chatId: number | string, text: string, msgId?: number) => {
+export const sendMsg = async (chatId: number | string, text: string, msgId?: number) => {
     try {
         const res = await axios.post(`${URL}/sendMessage`, {
             chat_id: chatId,
@@ -58,38 +58,12 @@ export const getUpdate = async () => {
         messages.forEach(msg => {
             const { message, update_id } = msg;
             if (authCheck(message)) {
-                switch (message.text) {
-                    case '/start':
-                        sendMsg(message.chat.id, 'Добро пожаловать!', message.message_id);
-                        break;
-                    case '/help':
-                        const msg = `
-                        Кто бы мне помог :-):
-                        /add_pomodoro
-                        /get_pomodoro
-                        /reset_pomodoro
-                        `
-                        sendMsg(message.chat.id, msg, message.message_id);
-                        break;
-                    case '/add_pomodoro':
-                        pomodoro++;
-                        sendMsg(message.chat.id, `Помидорка добавлена. Итого: ${pomodoro}`, message.message_id);
-                        const dateObj = new Date();
-                        const dateToday = `${dateObj.getDate()}.${dateObj.getMonth() + 1}.${dateObj.getFullYear()}`;
-                        writeFile(`storage_${dateToday}.txt`, `${pomodoro}`, console.log);
-                        break;
-                    case '/get_pomodoro':
-                        sendMsg(message.chat.id, `Итого помидорок: ${pomodoro}`, message.message_id);
-                        break;
-                    case '/reset_pomodoro':
-                        pomodoro = 0;
-                        sendMsg(message.chat.id, `Помидороки сброшены`, message.message_id);
-                        break;
-                    case '/ping':
-                        sendMsg(message.chat.id, 'PONG', message.message_id);
-                        break;
-                    default:
-                        sendMsg(message.chat.id, 'Неизвестная команда', message.message_id);
+
+                if (commands.hasOwnProperty(message.text)) {
+                    const fn: Function = commands[message.text];
+                    fn(message.chat.id, message.message_id);
+                } else {
+                    sendMsg(message.chat.id, 'Неизвестная команда', message.message_id);
                 }
             }
             offset = Math.max(offset, update_id + 1);
