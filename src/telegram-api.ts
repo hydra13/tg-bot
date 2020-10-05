@@ -68,7 +68,7 @@ export const getUpdate = async () => {
             }
             offset = Math.max(offset, update_id + 1);
         })
-        setTimeout(getUpdate, 1000);
+        setTimeout(() => getUpdate(), 1000);
     } catch (err) {
         console.log(`ERROR: ${err.message}`)
         console.log('Closing program...')
